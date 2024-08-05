@@ -11,4 +11,4 @@ COPY . .
 
 
 
-ENTRYPOINT [ "npm","run","dev" ]
+ENTRYPOINT [ "node","index.js" ]

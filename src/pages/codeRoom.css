@@ -1,0 +1,16 @@
+/* App.css */
+
+.resize-handle {
+  background-color: rgb(31 41 55);
+  border-radius: 10%;
+    cursor: col-resize;
+    width: 5px;
+    
+  }
+  
+  .resize-handle.vertical {
+    cursor: row-resize;
+    height: 5px;
+  }
+  
+  

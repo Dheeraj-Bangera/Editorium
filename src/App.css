@@ -1,17 +1,1 @@
-/* App.css */
 
-.resize-handle {
-  background: #ddd;
-  cursor: col-resize;
-  width: 5px;
-}
-
-.resize-handle.vertical {
-  cursor: row-resize;
-  height: 5px;
-}
-
-.file-explorer {
-  padding: 10px;
-  color: white;
-}

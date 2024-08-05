@@ -1,9 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { CiFolderOn, CiFileOn } from 'react-icons/ci';
 import { FaFolder } from 'react-icons/fa';
-import { FileIcon, defaultStyles } from 'react-file-icon'
-const FileTree = ({ treeData, onSelect }) => {
+import socket from '../utils/socket';
+import path from 'path';
+const FileTree = ({ initialTreeData, onSelect ,selectedFile}) => {
     const [expandedFolders, setExpandedFolders] = useState({});
+    const [treeData, setTreeData] = useState([]);
+    const expandedFoldersRef = useRef(expandedFolders);
+
+    useEffect(() => {
+        // Set the initial tree data when the component mounts
+        setTreeData(initialTreeData || []);
+    }, [initialTreeData]);
+
+    useEffect(() => {
+        const handleTreeRefresh = (data) => {
+            const newExpandedFolders = { ...expandedFoldersRef.current };
+            const mergeFolders = (newTree, path = '') => {
+                newTree.forEach((item) => {
+                    const currentPath = `${path}/${item.name}`;
+                    if (item.type === 'folder' && expandedFoldersRef.current[currentPath]) {
+                        newExpandedFolders[currentPath] = true;
+                    }
+                    if (item.children) {
+                        mergeFolders(item.children, currentPath);
+                    }
+                });
+            };
+            mergeFolders(data);
+            setExpandedFolders(newExpandedFolders);
+            setTreeData(data);
+        };
+
+        socket.on("fileTree:refresh", handleTreeRefresh);
+
+        // Cleanup listener on component unmount
+        return () => {
+            socket.off("fileTree:refresh", handleTreeRefresh);
+        };
+    }, []);
+
+    useEffect(() => {
+        expandedFoldersRef.current = expandedFolders;
+    }, [expandedFolders]);
 
     const toggleFolder = (path) => {
         setExpandedFolders((prevState) => ({
@@ -16,6 +55,8 @@ const FileTree = ({ treeData, onSelect }) => {
         if (!structure || !Array.isArray(structure)) return null;
 
         return (
+            <>
+            
             <ul className="ml-4 list-none">
                 {structure.map((item, index) => {
                     const currentPath = `${parentPath}/${item.name}`;
@@ -50,10 +91,13 @@ const FileTree = ({ treeData, onSelect }) => {
                     );
                 })}
             </ul>
+            </>
         );
     };
 
-    return <div>{renderTree(treeData)}</div>;
+    return <div>
+        <p>{selectedFile?selectedFile.replace('/','>'):<div>No file Selected</div>}</p>
+        {renderTree(treeData)}</div>;
 };
 
 export default FileTree;

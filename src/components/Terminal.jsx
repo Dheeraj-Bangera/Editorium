@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
-import socket from './utils/socket';
+import socket from '../utils/socket';
 
 const TerminalComponent = () => {
   const terminalRef = useRef(null);
@@ -17,8 +17,6 @@ const TerminalComponent = () => {
     terminal.loadAddon(fitAddonRef.current);
     terminal.open(terminalRef.current);
     fitAddonRef.current.fit();
-
-    console.log('Terminal initialized and fit applied.');
 
     // Resize the terminal when the window is resized
     const handleResize = () => {

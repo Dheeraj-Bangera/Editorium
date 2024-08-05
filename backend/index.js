@@ -29,7 +29,13 @@ app.use(cors());
 chokidar.watch('./user').on('all', (event, path) => {
     io.emit('file:refresh', path);
 });
-
+chokidar.watch('./user').on('all', async(event, path) => {
+    if (['add', 'addDir', 'unlink', 'unlinkDir', 'rename'].includes(event)) {
+        const fileTree = await generateFileTree('./user');
+        console.log(fileTree);
+        io.emit('fileTree:refresh', fileTree);
+    }
+})
 ptyProcess.onData(data => {
     io.emit('terminal:data', data);
 });
@@ -41,6 +47,7 @@ io.on('connection', (socket) => {
 
     socket.on('file:change', async ({ path, content }) => {
         try {
+            console.log('File changed:', path,content);
             await fs.promises.writeFile(`./user${path}`, content);
             socket.emit('file:changed', { path });
         } catch (error) {
